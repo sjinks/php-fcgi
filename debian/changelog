@@ -1,0 +1,17 @@
+php-fcgi (0.2.2) trusty; urgency=low
+
+  * Upload for Ubuntu Trusty
+
+ -- Volodymyr Kolesnykov <volodymyr@wildwolf.name>  Fri, 17 Oct 2014 07:23:57 +0300
+
+php-fcgi (0.2.1) precise; urgency=low
+
+  * Init script bug fix
+
+ -- Vladimir Kolesnikov <vladimir@free-sevastopol.com>  Sat, 24 Mar 2012 02:06:49 +0200
+
+php-fcgi (0.1) oneiric; urgency=low
+
+  * Initial release
+
+ -- Vladimir Kolesnikov <vladimir@free-sevastopol.com>  Sat, 24 Mar 2012 01:30:34 +0200

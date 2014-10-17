@@ -1,0 +1,12 @@
+Source: php-fcgi
+Section: php
+Priority: optional
+Maintainer: Volodymyr Kolesnykov <volodymyr@wildwolf.name>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.9.5
+
+Package: php-fcgi
+Architecture: any
+Depends: ${misc:Depends}, php5-cgi
+Description: Init script for php5-cgi
+ Automatically start php-cgi in FastCGI mode

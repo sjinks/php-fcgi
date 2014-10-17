@@ -1,0 +1,112 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          php-fastcgi
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start and stop php-cgi in external FASTCGI mode
+# Description:       Start and stop php-cgi in external FASTCGI mode
+### END INIT INFO
+
+# Do NOT "set -e"
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="php-fcgi"
+NAME=php-fcgi
+DAEMON=/usr/bin/php-cgi
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+PHP_CONFIG_FILE=/etc/php5/cgi/php.ini
+
+[ -x "$DAEMON" ] || exit 0
+
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+. /lib/init/vars.sh
+. /lib/lsb/init-functions
+
+if [ "$START" != "yes" -a "$1" != "stop" ]; then
+	log_warning_msg "To enable $NAME, edit /etc/default/$NAME and set START=yes"
+	exit 0
+fi
+
+echo 2048 > /proc/sys/net/core/somaxconn
+export PHP_FCGI_CHILDREN PHP_FCGI_MAX_REQUESTS PHP_FCGI_LISTEN_BACKLOG
+DAEMON_ARGS="-q -b $FCGI_SOCKET -c $PHP_CONFIG_FILE"
+
+do_start()
+{
+	# Return
+	#   0 if daemon has been started
+	#   1 if daemon was already running
+	#   2 if daemon could not be started
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON --test > /dev/null || return 1
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON --background --make-pidfile --chuid $EXEC_AS_USER --startas $DAEMON -- $DAEMON_ARGS || return 2
+}
+
+do_stop()
+{
+	# Return
+	#   0 if daemon has been stopped
+	#   1 if daemon was already stopped
+	#   2 if daemon could not be stopped
+	#   other if a failure occurred
+	start-stop-daemon --stop --quiet --retry=TERM/30/KILL/5 --pidfile $PIDFILE > /dev/null # --name $DAEMON
+	RETVAL="$?"
+	[ "$RETVAL" = 2 ] && return 2
+
+	start-stop-daemon --stop --quiet --oknodo --retry=0/30/KILL/5 --exec $DAEMON
+	[ "$?" = 2 ] && return 2
+
+	rm -f $PIDFILE
+	return "$RETVAL"
+}
+
+RETVAL=0
+case "$1" in
+	start)
+		[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+		do_start
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0; RETVAL=0 ;;
+			2) [ "$VERBOSE" != no ] && log_end_msg 1; RETVAL=1 ;;
+		esac
+	;;
+
+	stop)
+		[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+		do_stop
+		case "$?" in
+			0|1) [ "$VERBOSE" != no ] && log_end_msg 0; RETVAL=0 ;;
+			2) [ "$VERBOSE" != no ] && log_end_msg 1; RETVAL=1 ;;
+		esac
+	;;
+
+	restart|force-reload)
+		log_daemon_msg "Restarting $DESC" "$NAME"
+		do_stop
+		case "$?" in
+			0|1)
+				do_start
+				case "$?" in
+					0) log_end_msg 0; RETVAL=0 ;;
+					1) log_end_msg 1; RETVAL=1 ;; # Old process is still running
+					*) log_end_msg 1; RETVAL=1 ;; # Failed to start
+				esac
+			;;
+			*)
+				# Failed to stop
+				log_end_msg 1
+				RETVAL=1
+			;;
+		esac
+	;;
+
+	*)
+		echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+		exit 3
+	;;
+esac
+
+exit $RETVAL
