@@ -1,3 +1,9 @@
+php-fcgi (0.2.3) trusty; urgency=low
+
+  * Architecture is all, not any
+
+ -- Volodymyr Kolesnykov <volodymyr@wildwolf.name>  Tue, 28 Oct 2014 20:38:00 +0200
+
 php-fcgi (0.2.2) trusty; urgency=low
 
   * Upload for Ubuntu Trusty
