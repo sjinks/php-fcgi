@@ -1,4 +1,4 @@
-php-fcgi (0.2.4) trusty; urgency=low
+php-fcgi (0.2.4) vivid; urgency=low
 
   * Bump Standards-Version
   * Upload for Ubuntu Vivid
